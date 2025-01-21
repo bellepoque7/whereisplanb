@@ -2,10 +2,10 @@ import requests
 import pandas as pd
 import numpy as np
 import xml.etree.ElementTree as ET
-import cert_info
 import datetime
 import matplotlib.pyplot as plt
 import concurrent.futures # 병렬처리 모듈
+import os
 
 def kamis_api_check(cls_code ='02', category_detail_code ='224', country_code ='',regday='2022-12-01',convert_kg_yn ='N'):
     '''
@@ -13,8 +13,8 @@ def kamis_api_check(cls_code ='02', category_detail_code ='224', country_code ='
     '''
     url = 'http://www.kamis.or.kr/service/price/xml.do?action=dailyPriceByCategoryList'
     params = {
-    ('p_cert_key',cert_info.cert_key()), #인증Key
-    ('p_cert_id',cert_info.cert_id()),   #요청자id
+    ('p_cert_key', os.environ.get('kamis_api_id') ), #인증Key
+    ('p_cert_id', os.environ.get('kamis_api_key')),   #요청자id
     ('p_returntype','xml'), #Return Type (json:Json 데이터 형식, xml:XML데이터형식)
     ('p_product_cls_code',cls_code), #구분 ( 01:소매, 02:도매, default:02 )
     ('p_item_category_code', category_detail_code[0]+'00'), # 부류코드(100:식량작물, 200:채소류, 300:특용작물, 400:과일류, 500:축산물, 600:수산물, default:100)
@@ -28,7 +28,7 @@ def kamis_api_check(cls_code ='02', category_detail_code ='224', country_code ='
     # DisconnectError 방지를 위한 헤더추가
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'}
     response = requests.get(url,params,headers = headers)
-    print(response)
+    return response
 
 #https://www.kamis.or.kr/customer/reference/openapi_list.do?action=detail&boardno=1
 def kamis_api_1(cls_code ='02', category_detail_code ='224', country_code ='',regday='2022-12-01',convert_kg_yn ='N'):
